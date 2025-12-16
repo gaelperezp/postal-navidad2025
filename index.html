@@ -1,0 +1,157 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Postal Navideña — Gael Pérez</title>
+  <link rel="preconnect" href="https://fonts.cdnfonts.com"> 
+  <link href="https://fonts.cdnfonts.com/css/foremost" rel="stylesheet">
+  <style>
+    :root {
+      --bg1: #02140c;
+      --bg2: #061e14;
+      --bg3: #000c07;
+      --accent: #b8ffd0;
+      --gold: #ffd56b;
+      --plus2: 2px;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: 'Foremost', 'Trebuchet MS', 'Poppins', system-ui, sans-serif;
+      background: radial-gradient(1600px 1000px at 15% 8%, var(--bg2), var(--bg1) 40%, var(--bg3) 100%);
+      color: #fff; overflow: hidden;
+    }
+    .stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+    canvas.snow { position: fixed; inset: 0; pointer-events: none; z-index: 1; }
+    .emoji-rain { position: fixed; inset: 0; pointer-events: none; z-index: 3; }
+    .cover { position: fixed; inset: 0; display: grid; place-items: center; text-align: center; padding: 2rem; z-index: 5; }
+    .card { position: fixed; inset: 0; display: none; grid-template-rows: 1fr auto; grid-template-columns: 1fr; padding: clamp(1rem, 3vw, 2rem); z-index: 4; }
+    .cover h1, .title {
+      line-height: 1.12; margin: 0 0 1rem 0; letter-spacing: .8px;
+      text-shadow: 0 0 6px rgba(184,255,208,0.22), 0 0 18px rgba(184,255,208,0.32), 0 0 36px rgba(255,213,107,0.18);
+      background: linear-gradient(90deg, #eafff3, #cffff0, #fff1bf, #eafff3);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+      animation: shimmer 6s linear infinite;
+    }
+    .cover h1 { font-size: clamp(calc(2.4rem + var(--plus2)), 6.5vw, calc(5rem + var(--plus2))); }
+    .title { font-size: clamp(calc(2.2rem + var(--plus2)), 6.2vw, calc(5rem + var(--plus2))); }
+    .subtitle { font-size: clamp(calc(1rem + var(--plus2)), 2.6vw, calc(1.3rem + var(--plus2))); opacity: .95; color: #e1ffee; text-shadow: 0 0 6px rgba(184,255,208,0.3); }
+    .gift-btn {
+      display: inline-flex; align-items: center; gap: .65rem; font-weight: 700;
+      font-size: clamp(calc(1rem + var(--plus2)), 2.8vw, calc(1.35rem + var(--plus2)));
+      padding: .95rem 1.35rem; border-radius: 999px; border: none;
+      background: linear-gradient(180deg, rgba(255,255,255,0.16), rgba(255,255,255,0.06));
+      box-shadow: 0 10px 25px rgba(0,0,0,0.35), 0 0 18px rgba(255,213,107,0.2);
+      color: #fff; cursor: pointer; text-decoration: none; transform: translateY(0);
+      animation: float 3s ease-in-out infinite;
+    }
+    .gift-btn:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 12px 30px rgba(0,0,0,0.42), 0 0 24px rgba(255,213,107,0.32); }
+    .center { align-self: center; justify-self: center; text-align: center; }
+    .role-ribbon {
+      display: inline-block; margin-top: .9rem; padding: .45rem .9rem; border-radius: 999px;
+      border: none; background: linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0.08));
+      color: #eafff3; font-weight: 600; box-shadow: inset 0 0 12px rgba(255,213,107,0.15), 0 5px 20px rgba(0,0,0,0.25);
+      font-size: clamp(calc(.95rem + var(--plus2)), 2.6vw, calc(1.05rem + var(--plus2)));
+    }
+    .signature { color: #c8ffe2; font-weight: 600; letter-spacing: .4px; font-size: clamp(calc(1rem + var(--plus2)), 2.6vw, calc(1.15rem + var(--plus2))); }
+    .footer { display: flex; align-items: center; justify-content: flex-end; gap: .75rem; }
+    .cta { position: fixed; right: clamp(.8rem, 3vw, 2rem); bottom: clamp(.8rem, 3vw, 2rem); z-index: 6; text-decoration: none; font-weight: 700; font-size: clamp(0.95rem, 2.4vw, 1.1rem); padding: .75rem 1.2rem; border-radius: 999px; border: none; color: #092013; background: #c8ffe2; box-shadow: 0 10px 24px rgba(0,0,0,0.45); }
+    .cta:hover { filter: brightness(1.08); transform: translateY(-1px); }
+    .flake { position: absolute; top: -3rem; font-size: clamp(18px, 4.5vw, 42px); will-change: transform, opacity; user-select: none; animation-name: fall; animation-timing-function: linear; animation-fill-mode: both; text-shadow: 0 0 8px rgba(255,255,255,0.35), 0 0 18px rgba(255,255,255,0.2); }
+    @keyframes fall { 0% { transform: translateY(-10vh) rotate(0); opacity: 0; } 10% { opacity: 1; } 100% { transform: translateY(110vh) rotate(360deg); opacity: .95; } }
+    @keyframes shimmer { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+    @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+    .stars::before, .stars::after { content: ''; position: absolute; inset: 0; background-image: radial-gradient(circle at 10% 20%, rgba(255,255,255,0.10) 0 1px, transparent 2px), radial-gradient(circle at 70% 30%, rgba(255,255,255,0.08) 0 1px, transparent 2px), radial-gradient(circle at 30% 80%, rgba(255,255,255,0.06) 0 1px, transparent 2px), radial-gradient(circle at 85% 60%, rgba(255,255,255,0.10) 0 1px, transparent 2px); background-repeat: no-repeat; animation: twinkle 12s linear infinite; opacity: .45; }
+    @keyframes twinkle { 0%,100% { opacity: .3; } 50% { opacity: .7; } }
+  </style>
+</head>
+<body>
+  <div class="stars" aria-hidden="true"></div>
+  <canvas class="snow" id="snow" aria-hidden="true"></canvas>
+  <section class="cover" id="cover">
+    <div>
+      <h1>¡Gracias por un gran año!</h1>
+      <p class="subtitle">Tengo una sorpresa para ti</p>
+      <button class="gift-btn" id="openBtn">Abre la postal navideña</button>
+    </div>
+  </section>
+  <section class="card" id="card">
+    <div class="center">
+      <h2 class="title">¡Feliz Navidad y un prospero año 2026!</h2>
+      <p class="subtitle">Que esta temporada esté llena de alegrías, proyectos exitosos y grandes ideas ✨</p>
+      <div class="signature">Con aprecio, Gael Pérez</div>
+      <span class="role-ribbon">Gerente de Consultoría · Overcast</span>
+    </div>
+    <div class="footer">
+      <a class="cta" href="https://www.linkedin.com/newsletters/inforbit-7360780746803879936/" target="_blank" rel="noopener noreferrer">Conoce más</a>
+    </div>
+  </section>
+  <div class="emoji-rain" id="rain"></div>
+  <audio id="music" preload="auto" src="https://lnkd.in/eEVcVw5d"></audio>
+  <script>
+    const cover = document.getElementById('cover');
+    const card  = document.getElementById('card');
+    const openBtn = document.getElementById('openBtn');
+    const rain = document.getElementById('rain');
+    const music = document.getElementById('music');
+    const snowCanvas = document.getElementById('snow');
+    const ctx = snowCanvas.getContext('2d');
+    const EMOJIS = ['❄️','🎄','🎁','☃️','🎅','✨','🕯️','🦌','⭐','🍪'];
+    function random(min, max) { return Math.random() * (max - min) + min; }
+    function spawnEmoji() {
+      const span = document.createElement('span');
+      span.className = 'flake';
+      span.textContent = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
+      const size = random(22, 58);
+      span.style.left = random(-5, 100) + 'vw';
+      span.style.fontSize = size + 'px';
+      span.style.animationDuration = random(6, 14) + 's';
+      span.style.animationDelay = random(0, 2.5) + 's';
+      span.style.opacity = random(0.7, 1);
+      rain.appendChild(span);
+      span.addEventListener('animationend', () => span.remove());
+    }
+    let rainTimer = null;
+    function startRain() {
+      if (rainTimer) return;
+      rainTimer = setInterval(() => {
+        const burst = Math.floor(random(2, 6));
+        for (let i = 0; i < burst; i++) spawnEmoji();
+      }, 600);
+    }
+    let flakes = [];
+    function resizeCanvas() {
+      snowCanvas.width = window.innerWidth;
+      snowCanvas.height = window.innerHeight;
+      flakes = Array.from({length: Math.floor(window.innerWidth * 0.6)}).map(() => ({
+        x: random(0, snowCanvas.width),
+        y: random(0, snowCanvas.height),
+        r: random(0.6, 2.2),
+        d: random(0.5, 1.8),
+        drift: random(-0.6, 0.6)
+      }));
+    }
+    function drawSnow() {
+      ctx.clearRect(0,0,snowCanvas.width,snowCanvas.height);
+      ctx.fillStyle = 'rgba(255,255,255,0.85)';
+      flakes.forEach(f => {
+        ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, Math.PI*2); ctx.fill();
+        f.y += f.d; f.x += f.drift * 0.3;
+        if (f.y > snowCanvas.height) { f.y = -3; f.x = random(0, snowCanvas.width); }
+      });
+      requestAnimationFrame(drawSnow);
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas(); requestAnimationFrame(drawSnow);
+    openBtn.addEventListener('click', async () => {
+      cover.style.display = 'none';
+      card.style.display  = 'grid';
+      startRain();
+      try { await music.play(); } catch (e) {}
+    });
+  </script>
+</body>
+</html>
